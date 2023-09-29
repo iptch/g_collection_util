@@ -17,6 +17,7 @@ Currently, a dummy-spreadsheet stored in my (SZE) personal gdrive is used. To us
 - Enter the spreadsheet-id in function_app.py
 
 # Todo
+- (ensure azure function is also properly working on azure. It runs locally, and I deployed it, but I didn't see the logs on azure.)
 - Write the dataframe to DB
 - Evtl.: Automate deployment with github actions
 
