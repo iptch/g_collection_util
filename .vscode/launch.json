@@ -24,7 +24,7 @@
       "type": "python",
       "request": "attach",
       "port": 7071,
-      "preLaunchTask": "func host start"
+      "preLaunchTask": "func: host start"
     }
   ]
 }

@@ -1,38 +1,10 @@
-import azure.functions as func
 import logging
+import azure.functions as func
+import pandas as pd
+from google.oauth2 import service_account
+from googleapiclient.discovery import build
 
-app = func.FunctionApp(http_auth_level=func.AuthLevel.ANONYMOUS)
-
-@app.route(route="http_trigger")
-def http_trigger(req: func.HttpRequest) -> func.HttpResponse:
-    logging.info('Python HTTP trigger function processed a request.')
-
-    name = req.params.get('asdf')
-    if not name:
-        try:
-            req_body = req.get_json()
-        except ValueError:
-            pass
-        else:
-            name = req_body.get('asdf')
-
-    if name:
-        return func.HttpResponse(f"Hello, {name}. This HTTP triggered function executed successfully.")
-    else:
-        return func.HttpResponse(
-             "This HTTP triggered function executed successfully. Pass a name in the query string or in the request body for a personalized response.",
-             status_code=200
-        )
-    
-# timer_trigger = func.Blueprint()
-
-# @timer_trigger.timer_trigger(schedule="0 * * * * *", arg_name="myTimer", run_on_startup=True,
-#               use_monitor=False) 
-# def timer_trigger(myTimer: func.TimerRequest) -> None:
-#     if myTimer.past_due:
-#         logging.info('The timer is past due!')
-
-#     logging.info('Python timer trigger function executed.')
+app = func.FunctionApp()
 
 @app.schedule(schedule="0 * * * * *", arg_name="myTimer", run_on_startup=True,
               use_monitor=False) 
@@ -41,3 +13,15 @@ def timer_trigger(myTimer: func.TimerRequest) -> None:
         logging.info('The timer is past due!')
 
     logging.info('Python timer trigger function executed.')
+
+    spreadsheet_id = "1tJqBrGq_GBXwA8KDrJ3gGNHz_Z5EKxtVYbVeBvqtrZg"
+
+    credentials = service_account.Credentials.from_service_account_file("g-collection-400509-fcf0b43151e3.json", scopes=["https://www.googleapis.com/auth/spreadsheets"])
+    service = build("sheets", "v4", credentials=credentials)
+
+    request = service.spreadsheets().values().get(spreadsheetId=spreadsheet_id, range="A:Z")
+    sheet_props = request.execute()
+
+    df = pd.DataFrame(sheet_props['values'][1:], columns=sheet_props['values'][0])
+
+    print(df)
